@@ -9,7 +9,7 @@
 	#include <GL/gl.h>
 	#include <SDL2/SDL.h>
 	#include <SDL2/SDL_opengl.h>
-
+	#include <SDL2/SDL_mixer.h>
 
 #elif __linux__
     // linux
@@ -32,6 +32,13 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
 
+    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+        printf("Failed to init SDL\n");
+        exit(1);
+    }
+
+
+
 	SDL_Init(SDL_INIT_VIDEO);
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -47,6 +54,10 @@ int main(int argc, char* argv[]) {
 	SDL_Window* window = SDL_CreateWindow("OpenGL", 100, 100, 800, 600, SDL_WINDOW_OPENGL);
 
 	SDL_GLContext context = SDL_GL_CreateContext(window);
+
+    Mix_OpenAudio(22050, AUDIO_S16SYS, 2, 640);
+    Mix_Music *music = Mix_LoadMUS("Resources3D/audio/Haunted.mp3");
+    Mix_PlayMusic(music, 1);
 
 	  glewExperimental=true;
 	  GLenum err=glewInit();
@@ -81,6 +92,7 @@ int main(int argc, char* argv[]) {
     SDL_Delay(2000);
 
 	SDL_GL_DeleteContext(context);
+	Mix_FreeMusic(music);
 
 	SDL_Quit();
 
