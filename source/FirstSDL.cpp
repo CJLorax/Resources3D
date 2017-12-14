@@ -13,6 +13,9 @@
 
 #elif __linux__
     // linux
+	#include "GL/glew.h"
+	#include "SDL2/SDL.h"
+
 #elif __APPLE__
     #include <glm.hpp>
 	#include <SDL2/SDL.h>
@@ -45,35 +48,36 @@ int main(int argc, char* argv[]) {
 
 	SDL_GLContext context = SDL_GL_CreateContext(window);
 
-
-	// Initialize GLEW
-	if (GLEW_OK != glewInit())
-	{
-	    // GLEW failed!
+	  glewExperimental=true;
+	  GLenum err=glewInit();
+	  if(err!=GLEW_OK) {
+	    // Problem: glewInit failed, something is seriously wrong.
+	    cout << "glewInit failed: " << glewGetErrorString(err) << endl;
 	    exit(1);
-	}
+	  }
 
-	/* This makes our buffer swap syncronized with the monitor's vertical refresh */
-    SDL_GL_SetSwapInterval(1);
+	  /* This makes our buffer swap syncronized with the monitor's vertical refresh */
+	    SDL_GL_SetSwapInterval(1);
 
-    /* Clear our buffer with a red background */
-    glClearColor ( 1.0, 0.0, 0.0, 1.0 );
-    glClear ( GL_COLOR_BUFFER_BIT );
-    /* Swap our back buffer to the front */
-    SDL_GL_SwapWindow(window);
-    /* Wait 2 seconds */
-    SDL_Delay(2000);
+	    /* Clear our buffer with a red background */
+	    glClearColor ( 1.0, 0.0, 0.0, 1.0 );
+	    glClear ( GL_COLOR_BUFFER_BIT );
+	    /* Swap our back buffer to the front */
+	    SDL_GL_SwapWindow(window);
+	    /* Wait 2 seconds */
+	    SDL_Delay(2000);
 
-    /* Same as above, but green */
-    glClearColor ( 0.0, 1.0, 0.0, 1.0 );
-    glClear ( GL_COLOR_BUFFER_BIT );
-    SDL_GL_SwapWindow(window);
-    SDL_Delay(2000);
+	    /* Same as above, but green */
+	    glClearColor ( 0.0, 1.0, 0.0, 1.0 );
+	    glClear ( GL_COLOR_BUFFER_BIT );
+	    SDL_GL_SwapWindow(window);
+	    SDL_Delay(2000);
 
-    /* Same as above, but blue */
-    glClearColor ( 0.0, 0.0, 1.0, 1.0 );
-    glClear ( GL_COLOR_BUFFER_BIT );
-    SDL_GL_SwapWindow(window);
+	    /* Same as above, but blue */
+	    glClearColor ( 0.0, 0.0, 1.0, 1.0 );
+	    glClear ( GL_COLOR_BUFFER_BIT );
+	    SDL_GL_SwapWindow(window);
+
     SDL_Delay(2000);
 
 	SDL_GL_DeleteContext(context);
