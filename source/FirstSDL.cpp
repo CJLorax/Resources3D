@@ -3,6 +3,14 @@
 
 #ifdef _WIN32 // note the underscore: without it, it's not msdn official!
     // Windows (x64 and x86)
+	#include <windows.h>
+	#include <GL/glew.h>
+	#include <glm.hpp>
+	#include <GL/gl.h>
+	#include <SDL2/SDL.h>
+	#include <SDL2/SDL_opengl.h>
+
+
 #elif __linux__
     // linux
 #elif __APPLE__
@@ -39,10 +47,10 @@ int main(int argc, char* argv[]) {
 
 
 	// Initialize GLEW
-	glewExperimental = true;
-
-	if (glewInit() != GLEW_OK){
-	   cout << "Failed to initialize GLEW\n" << endl;
+	if (GLEW_OK != glewInit())
+	{
+	    // GLEW failed!
+	    exit(1);
 	}
 
 	/* This makes our buffer swap syncronized with the monitor's vertical refresh */
