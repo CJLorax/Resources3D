@@ -21,9 +21,12 @@
 
 #elif __APPLE__
     #include <glm.hpp>
+	#include <SDL_mixer.h>
 	#include <SDL2/SDL.h>
+
 	#include <glew.h>
 	#include <SDL2/SDL_opengl.h>
+	#include <unistd.h>
 #endif
 
 using namespace std;
@@ -66,10 +69,10 @@ int main(int argc, char* argv[]) {
 
 #endif
 
-//    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
-//        printf("Failed to init SDL\n");
-//        exit(1);
- //   }
+    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+        printf("Failed to init SDL\n");
+       exit(1);
+  }
 
 cout << dirAudio << endl;
 
