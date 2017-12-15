@@ -15,9 +15,12 @@
 
 #elif __linux__
     // linux
+	#include "glm.hpp"
 	#include "GL/glew.h"
+	#include "SDL2/SDL_mixer.h"
 	#include "SDL2/SDL.h"
 	#include <unistd.h>
+
 
 #elif __APPLE__
     #include <glm.hpp>
