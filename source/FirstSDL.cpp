@@ -37,8 +37,6 @@ using namespace std;
 #include <iostream>
 
 
-
-
 int main(int argc, char* argv[]) {
 
 #ifdef _WIN32 || _WIN64
@@ -77,7 +75,7 @@ int main(int argc, char* argv[]) {
        exit(1);
   }
 
-cout << dirAudio << endl;
+//cout << dirAudio << endl;
 
 	// init() all SDL headers
 	SDL_Init(SDL_INIT_EVERYTHING);
@@ -95,6 +93,9 @@ cout << dirAudio << endl;
 	SDL_Window* window = SDL_CreateWindow("OpenGL", 100, 100, 800, 600, SDL_WINDOW_OPENGL);
 
 	SDL_GLContext context = SDL_GL_CreateContext(window);
+
+
+
 
    //set up background audio
 	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 640);
@@ -135,6 +136,8 @@ cout << dirAudio << endl;
 	  // bool vars to track movement through the individual states
 	  bool menu, instructions, single, multi, singlewin, singlelose, multiwin, multilose, quit = false;
 
+
+
 	  // enter the program loop - See SDL_PollEvent
 
 	  // ********** game loop ********
@@ -156,6 +159,40 @@ cout << dirAudio << endl;
 
 		  			  // check for input
 		  			  if(SDL_PollEvent(&event)){
+
+		  			//*****************************************************
+		  				if (event.type == SDL_KEYDOWN)
+		  					{
+		  						switch (event.key.keysym.sym)
+		  						{
+
+		  						case SDLK_r:
+		  							// Cover with red and update
+		  							glClearColor(1.0, 0.0, 0.0, 1.0);
+		  							glClear(GL_COLOR_BUFFER_BIT);
+		  							SDL_GL_SwapWindow(window);
+		  							break;
+		  						case SDLK_g:
+		  							// Cover with green and update
+		  							glClearColor(0.0, 1.0, 0.0, 1.0);
+		  							glClear(GL_COLOR_BUFFER_BIT);
+		  							SDL_GL_SwapWindow(window);
+		  							break;
+		  						case SDLK_b:
+		  							// Cover with blue and update
+		  							glClearColor(0.0, 0.0, 1.0, 1.0);
+		  							glClear(GL_COLOR_BUFFER_BIT);
+		  							SDL_GL_SwapWindow(window);
+		  							break;
+		  						default:
+		  							break;
+		  						}
+		  					}
+		  				//*****************************************************
+
+
+
+
 		  				  // see if the player closes the window
 		  				  if(event.type == SDL_QUIT){
 		  					  quit = true;
@@ -333,7 +370,6 @@ cout << dirAudio << endl;
 		  } // end gameState SWITCH
 
 	  } // end game WHILE
-
 
 
 
