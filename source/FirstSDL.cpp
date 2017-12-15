@@ -37,104 +37,123 @@ using namespace std;
 #include <iostream>
 
 
+// Our SDL_Window ( just like with SDL2 without OpenGL)
+SDL_Window *mainWindow;
+
+// Our opengl context handle
+SDL_GLContext mainContext;
+
+
+
+
 int main(int argc, char* argv[]) {
 
-#ifdef _WIN32 || _WIN64
-    // Windows (x64 and x86)
-	// get current working directory
-	string s_cwd(getcwd(NULL,0));
-	// string to link to the content folders
-	string dirGraphics = s_cwd + "\\Resources3D\\graphics\\";
-	string dirAudio = s_cwd + "\\Resources3D\\audio\\";
-	string dirModels = s_cwd + "\\Resources3D\\models\\";
+	#ifdef _WIN32 || _WIN64
+		// Windows (x64 and x86)
+		// get current working directory
+		string s_cwd(getcwd(NULL,0));
+		// string to link to the content folders
+		string dirGraphics = s_cwd + "\\Resources3D\\graphics\\";
+		string dirAudio = s_cwd + "\\Resources3D\\audio\\";
+		string dirModels = s_cwd + "\\Resources3D\\models\\";
+
+	#elif __linux__
+		// linux
+		// get current working directory
+		string s_cwd(getcwd(NULL,0));
+		// string to link to the content folders
+		string dirGraphics = s_cwd + "/Resources3D/graphics/";
+		string dirAudio = s_cwd + "/Resources3D/audio/";
+		string dirModels = s_cwd + "/Resources3D/models/";
+
+	#elif __APPLE__
+		// apple
+		// get current working directory
+		string s_cwd(getcwd(NULL,0));
+		// string to link to the content folders
+		string dirGraphics = s_cwd + "/Resources3D/graphics/";
+		string dirAudio = s_cwd + "/Resources3D/audio/";
+		string dirModels = s_cwd + "/Resources3D/models/";
+
+	#endif
 
 
-#elif __linux__
-    // linux
-	// get current working directory
-	string s_cwd(getcwd(NULL,0));
-	// string to link to the content folders
-	string dirGraphics = s_cwd + "/Resources3D/graphics/";
-	string dirAudio = s_cwd + "/Resources3D/audio/";
-	string dirModels = s_cwd + "/Resources3D/models/";
+	// Initialize SDL's subsystems
+	if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
+	{
+		std::cout << "Failed to init SDL\n";
+		return false;
+	}
 
-#elif __APPLE__
-	// apple
-	// get current working directory
-	string s_cwd(getcwd(NULL,0));
-	// string to link to the content folders
-	string dirGraphics = s_cwd + "/Resources3D/graphics/";
-	string dirAudio = s_cwd + "/Resources3D/audio/";
-	string dirModels = s_cwd + "/Resources3D/models/";
+    // Create our window centered at 512x512 resolution
+	mainWindow = SDL_CreateWindow("OpenGL Game Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+1024, 768, SDL_WINDOW_OPENGL);
 
+	// Check that everything worked out okay
+	if (!mainWindow)
+	{
+		std::cout << "Unable to create window\n";
+		return false;
+	}
 
-#endif
+	// Create our opengl context and attach it to our window
+	mainContext = SDL_GL_CreateContext(mainWindow);
 
-    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
-        printf("Failed to init SDL\n");
-       exit(1);
-  }
-
-//cout << dirAudio << endl;
-
-	// init() all SDL headers
-	SDL_Init(SDL_INIT_EVERYTHING);
-
+	// Set our OpenGL version.
+	// SDL_GL_CONTEXT_CORE gives us only the newer version, deprecated functions are disabled
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+
+	// 3.2 is part of the modern versions of OpenGL, but most video cards would be able to run it
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-    /* Turn on double buffering with a 24bit Z buffer.
-     * You may need to change this to 16 or 32 for your system */
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	// Turn on double buffering with a 24bit Z buffer.
+	// You may need to change this to 16 or 32 for your system
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
-	SDL_Window* window = SDL_CreateWindow("OpenGL", 100, 100, 800, 600, SDL_WINDOW_OPENGL);
-
-	SDL_GLContext context = SDL_GL_CreateContext(window);
-
-
-
-
-   //set up background audio
-	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 640);
-	Mix_Music *music = Mix_LoadMUS((dirAudio + "Haunted.wav").c_str());
-	//(dirAudio + "Haunted.wav").c_str()
-    Mix_PlayMusic(music, 1);
+	// This makes our buffer swap syncronized with the monitor's vertical refresh
+    SDL_GL_SetSwapInterval(1);
 
 	// turn GLEW experimental on
-    glewExperimental=true;
+    glewExperimental= GL_TRUE;
 
     // check for GLEW init()
-	  GLenum err=glewInit();
-	  if(err!=GLEW_OK) {
-	    // Problem: glewInit failed, something is seriously wrong.
-	    cout << "glewInit failed: " << glewGetErrorString(err) << endl;
-	    exit(1);
-	  }
+	GLenum err=glewInit();
+	if(err!=GLEW_OK) {
+	  // Problem: glewInit failed, something is seriously wrong.
+	  cout << "glewInit failed: " << glewGetErrorString(err) << endl;
+	  exit(1);
+	}
 
 
-	  //set up a game controller
-	  SDL_GameController* gGameController = NULL;
+    //set up background audio
+	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 640);
+	Mix_Music *music = Mix_LoadMUS((dirAudio + "Haunted.wav").c_str());
+    Mix_PlayMusic(music, -1);
 
-	  //open the game controller
-	  gGameController = SDL_GameControllerOpen(0);
 
-	  // turn on controller events
-	  SDL_GameControllerEventState(SDL_ENABLE);
 
-	  //SDL event to handle input
-	  SDL_Event event;
+	//set up a game controller
+	SDL_GameController* gGameController = NULL;
 
-	  // set up enum to handle game states
-	  enum GameState {MENU, INSTRUCTIONS, SINGLE, MULTI, SINGLEWIN, SINGLELOSE, MULTIWIN, MULTILOSE};
+	//open the game controller
+	gGameController = SDL_GameControllerOpen(0);
 
-	  //set enum to track where we are
-	  GameState gameState = MENU;
+	// turn on controller events
+	SDL_GameControllerEventState(SDL_ENABLE);
 
-	  // bool vars to track movement through the individual states
-	  bool menu, instructions, single, multi, singlewin, singlelose, multiwin, multilose, quit = false;
+	//SDL event to handle input
+	SDL_Event event;
+
+	// set up enum to handle game states
+	enum GameState {MENU, INSTRUCTIONS, SINGLE, MULTI, SINGLEWIN, SINGLELOSE, MULTIWIN, MULTILOSE};
+
+	//set enum to track where we are
+	GameState gameState = MENU;
+
+	// bool vars to track movement through the individual states
+	bool menu, instructions, single, multi, singlewin, singlelose, multiwin, multilose, quit = false;
 
 
 
@@ -170,19 +189,19 @@ int main(int argc, char* argv[]) {
 		  							// Cover with red and update
 		  							glClearColor(1.0, 0.0, 0.0, 1.0);
 		  							glClear(GL_COLOR_BUFFER_BIT);
-		  							SDL_GL_SwapWindow(window);
+		  							SDL_GL_SwapWindow(mainWindow);
 		  							break;
 		  						case SDLK_g:
 		  							// Cover with green and update
 		  							glClearColor(0.0, 1.0, 0.0, 1.0);
 		  							glClear(GL_COLOR_BUFFER_BIT);
-		  							SDL_GL_SwapWindow(window);
+		  							SDL_GL_SwapWindow(mainWindow);
 		  							break;
 		  						case SDLK_b:
 		  							// Cover with blue and update
 		  							glClearColor(0.0, 0.0, 1.0, 1.0);
 		  							glClear(GL_COLOR_BUFFER_BIT);
-		  							SDL_GL_SwapWindow(window);
+		  							SDL_GL_SwapWindow(mainWindow);
 		  							break;
 		  						default:
 		  							break;
@@ -374,7 +393,7 @@ int main(int argc, char* argv[]) {
 
 
 
-	SDL_GL_DeleteContext(context);
+	SDL_GL_DeleteContext(mainContext);
 	Mix_FreeMusic(music);
 
 	SDL_Quit();
