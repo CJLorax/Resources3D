@@ -131,7 +131,7 @@ int main(int argc, char* argv[]) {
 
     //set up background audio
 	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 640);
-	Mix_Music *music = Mix_LoadMUS((dirAudio + "Haunted.wav").c_str());
+	Mix_Music *music = Mix_LoadMUS((dirAudio + "Haunted.mp3").c_str());
     Mix_PlayMusic(music, -1);
 
 
