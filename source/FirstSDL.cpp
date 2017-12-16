@@ -128,7 +128,7 @@ int main(int argc, char* argv[]) {
 	  exit(1);
 	}
 
-//comment
+//comment 2
     //set up background audio
 	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 640);
 	Mix_Music *music = Mix_LoadMUS((dirAudio + "Haunted.mp3").c_str());
