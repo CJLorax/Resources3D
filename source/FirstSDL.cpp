@@ -37,6 +37,8 @@ using namespace std;
 #include <iostream>
 
 
+
+
 // Our SDL_Window ( just like with SDL2 without OpenGL)
 SDL_Window *mainWindow;
 
@@ -155,6 +157,29 @@ int main(int argc, char* argv[]) {
 	// bool vars to track movement through the individual states
 	bool menu, instructions, single, multi, singlewin, singlelose, multiwin, multilose, quit = false;
 
+	// Clear our buffer with a black background
+	glClearColor(0.0, 0.0, 0.0, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT);
+	SDL_GL_SwapWindow(mainWindow);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 	  // enter the program loop - See SDL_PollEvent
@@ -179,35 +204,56 @@ int main(int argc, char* argv[]) {
 		  			  // check for input
 		  			  if(SDL_PollEvent(&event)){
 
-		  			//*****************************************************
-		  				if (event.type == SDL_KEYDOWN)
-		  					{
-		  						switch (event.key.keysym.sym)
-		  						{
 
-		  						case SDLK_r:
-		  							// Cover with red and update
-		  							glClearColor(1.0, 0.0, 0.0, 1.0);
-		  							glClear(GL_COLOR_BUFFER_BIT);
-		  							SDL_GL_SwapWindow(mainWindow);
-		  							break;
-		  						case SDLK_g:
-		  							// Cover with green and update
-		  							glClearColor(0.0, 1.0, 0.0, 1.0);
-		  							glClear(GL_COLOR_BUFFER_BIT);
-		  							SDL_GL_SwapWindow(mainWindow);
-		  							break;
-		  						case SDLK_b:
-		  							// Cover with blue and update
-		  							glClearColor(0.0, 0.0, 1.0, 1.0);
-		  							glClear(GL_COLOR_BUFFER_BIT);
-		  							SDL_GL_SwapWindow(mainWindow);
-		  							break;
-		  						default:
-		  							break;
-		  						}
-		  					}
-		  				//*****************************************************
+
+		  				if (event.type == SDL_KEYDOWN)
+		  							{
+		  								switch (event.key.keysym.sym)
+		  								{
+		  								case SDLK_r:
+		  									// Cover with red and update
+		  									glClearColor(1.0, 0.0, 0.0, 1.0);
+		  									glClear(GL_COLOR_BUFFER_BIT);
+		  									SDL_GL_SwapWindow(mainWindow);
+		  									break;
+		  								case SDLK_g:
+		  									// Cover with green and update
+		  									glClearColor(0.0, 1.0, 0.0, 1.0);
+		  									glClear(GL_COLOR_BUFFER_BIT);
+		  									SDL_GL_SwapWindow(mainWindow);
+		  									break;
+		  								case SDLK_b:
+		  									// Cover with blue and update
+		  									glClearColor(0.0, 0.0, 1.0, 1.0);
+		  									glClear(GL_COLOR_BUFFER_BIT);
+		  									SDL_GL_SwapWindow(mainWindow);
+		  									break;
+		  								default:
+		  									break;
+		  								}
+		  				}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
