@@ -11,11 +11,6 @@
 	#include <SDL2/SDL_opengl.h>
 	#include <SDL2/SDL_mixer.h>
 	#include <direct.h>
-
-	#include <shader_s.h>
-	#include <stb_image.h>
-
-
 	#define getcwd _getcwd
 
 #elif __linux__
