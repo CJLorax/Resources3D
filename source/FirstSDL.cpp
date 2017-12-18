@@ -34,6 +34,9 @@
 	#include <glew.h>
 	#include <SDL2/SDL_opengl.h>
 	#include <unistd.h>
+
+	#include "shader_s.h"
+	#include "stb_image.h"
 #endif
 
 using namespace std;

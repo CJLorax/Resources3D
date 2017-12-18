@@ -1,8 +1,21 @@
 #ifndef SHADER_H
 #define SHADER_H
 
+
+
+#ifdef _WIN32 || _WIN64
+    // Windows (x64 and x86)
+	#include <GL/glew.h>
+	#include <GL/gl.h>
+
+#elif __linux__
+    // linux
 	#include "GL/glew.h"
 	#include "GL/glu.h"
+
+#elif __APPLE__
+	#include <glew.h>
+#endif
 
 #include <string>
 #include <fstream>
