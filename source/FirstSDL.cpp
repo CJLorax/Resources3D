@@ -19,6 +19,7 @@
 	#include "GL/glew.h"
 	#include "SDL2/SDL_mixer.h"
 	#include "SDL2/SDL.h"
+	#include "SDL2/SDL_opengl.h"
 	#include <unistd.h>
 
 
@@ -26,7 +27,6 @@
     #include <glm.hpp>
 	#include <SDL_mixer.h>
 	#include <SDL2/SDL.h>
-
 	#include <glew.h>
 	#include <SDL2/SDL_opengl.h>
 	#include <unistd.h>
@@ -37,6 +37,19 @@ using namespace std;
 #include <iostream>
 
 
+// Shader sources
+const char *vertexShaderSource = "#version 330 core\n"
+    "layout (location = 0) in vec3 aPos;\n"
+    "void main()\n"
+    "{\n"
+    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "}\0";
+const char *fragmentShaderSource = "#version 330 core\n"
+    "out vec4 FragColor;\n"
+    "void main()\n"
+    "{\n"
+    "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+    "}\n\0";
 
 
 // Our SDL_Window ( just like with SDL2 without OpenGL)
@@ -98,8 +111,6 @@ int main(int argc, char* argv[]) {
 		return false;
 	}
 
-	// Create our opengl context and attach it to our window
-	mainContext = SDL_GL_CreateContext(mainWindow);
 
 	// Set our OpenGL version.
 	// SDL_GL_CONTEXT_CORE gives us only the newer version, deprecated functions are disabled
@@ -113,6 +124,9 @@ int main(int argc, char* argv[]) {
 	// You may need to change this to 16 or 32 for your system
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+
+	// Create our opengl context and attach it to our window
+	mainContext = SDL_GL_CreateContext(mainWindow);
 
 	// This makes our buffer swap syncronized with the monitor's vertical refresh
     SDL_GL_SetSwapInterval(1);
@@ -157,10 +171,84 @@ int main(int argc, char* argv[]) {
 	// bool vars to track movement through the individual states
 	bool menu, instructions, single, multi, singlewin, singlelose, multiwin, multilose, quit = false;
 
-	// Clear our buffer with a black background
-	glClearColor(0.0, 0.0, 0.0, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT);
-	SDL_GL_SwapWindow(mainWindow);
+
+
+
+
+	// build and compile our shader program
+	    // ------------------------------------
+	    // vertex shader
+	    int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+	    glCompileShader(vertexShader);
+	    // check for shader compile errors
+	    int success;
+	    char infoLog[512];
+	    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+	    if (!success)
+	    {
+	        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+	        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+	    }
+	    // fragment shader
+	    int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+	    glCompileShader(fragmentShader);
+	    // check for shader compile errors
+	    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+	    if (!success)
+	    {
+	        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+	        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+	    }
+	    // link shaders
+	    int shaderProgram = glCreateProgram();
+	    glAttachShader(shaderProgram, vertexShader);
+	    glAttachShader(shaderProgram, fragmentShader);
+	    glLinkProgram(shaderProgram);
+	    // check for linking errors
+	    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+	    if (!success) {
+	        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+	        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+	    }
+	    glDeleteShader(vertexShader);
+	    glDeleteShader(fragmentShader);
+
+	    // set up vertex data (and buffer(s)) and configure vertex attributes
+	    // ------------------------------------------------------------------
+	    float vertices[] = {
+	        -0.5f, -0.5f, 0.0f, // left
+	         0.5f, -0.5f, 0.0f, // right
+	         0.0f,  0.5f, 0.0f  // top
+	    };
+
+	    unsigned int VBO, VAO;
+	    glGenVertexArrays(1, &VAO);
+	    glGenBuffers(1, &VBO);
+	    // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+	    glBindVertexArray(VAO);
+
+	    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	    glEnableVertexAttribArray(0);
+
+	    // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
+	    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	    // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
+	    // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
+	    glBindVertexArray(0);
+
+	    // uncomment this call to draw in wireframe polygons.
+	    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+
+
+
+
 
 
 
@@ -201,62 +289,28 @@ int main(int argc, char* argv[]) {
 
 		  		  while(menu){
 
+
+
+		  			// render
+		  			        // ------
+		  			        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		  			        glClear(GL_COLOR_BUFFER_BIT);
+
+		  			        // draw our first triangle
+		  			        glUseProgram(shaderProgram);
+		  			        glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+		  			        glDrawArrays(GL_TRIANGLES, 0, 3);
+		  			        // glBindVertexArray(0); // no need to unbind it every time
+
+
+		  			        SDL_GL_SwapWindow(mainWindow);
+
+
+
+
+
 		  			  // check for input
 		  			  if(SDL_PollEvent(&event)){
-
-
-
-		  				if (event.type == SDL_KEYDOWN)
-		  							{
-		  								switch (event.key.keysym.sym)
-		  								{
-		  								case SDLK_r:
-		  									// Cover with red and update
-		  									glClearColor(1.0, 0.0, 0.0, 1.0);
-		  									glClear(GL_COLOR_BUFFER_BIT);
-		  									SDL_GL_SwapWindow(mainWindow);
-		  									break;
-		  								case SDLK_g:
-		  									// Cover with green and update
-		  									glClearColor(0.0, 1.0, 0.0, 1.0);
-		  									glClear(GL_COLOR_BUFFER_BIT);
-		  									SDL_GL_SwapWindow(mainWindow);
-		  									break;
-		  								case SDLK_b:
-		  									// Cover with blue and update
-		  									glClearColor(0.0, 0.0, 1.0, 1.0);
-		  									glClear(GL_COLOR_BUFFER_BIT);
-		  									SDL_GL_SwapWindow(mainWindow);
-		  									break;
-		  								default:
-		  									break;
-		  								}
-		  				}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 		  				  // see if the player closes the window
 		  				  if(event.type == SDL_QUIT){
@@ -437,7 +491,10 @@ int main(int argc, char* argv[]) {
 	  } // end game WHILE
 
 
-
+	    // optional: de-allocate all resources once they've outlived their purpose:
+	    // ------------------------------------------------------------------------
+	    glDeleteVertexArrays(1, &VAO);
+	    glDeleteBuffers(1, &VBO);
 
 	SDL_GL_DeleteContext(mainContext);
 	Mix_FreeMusic(music);
