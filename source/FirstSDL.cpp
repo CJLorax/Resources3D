@@ -19,6 +19,8 @@
 #include <camera.h>
 
 
+
+
 	#define getcwd _getcwd
 
 #elif __linux__
